@@ -6,11 +6,12 @@ picked_mac = ['60:45:CB:12:F5:70', '60:45:CB:12:D9:E8', '60:45:CB:12:E5:98', '60
 content = iwlist.scan(interface='ra0')
 cells = iwlist.parse(content)
 
-raw_data = [0.0] * len(picked_mac) * 2
+raw_data = [0.0] * len(picked_mac) * 3
 for cell in cells:
   if (cell['mac'] in picked_mac):
     idx = picked_mac.index(cell['mac'])
     raw_data[idx] = float(cell['signal_quality'])
-    raw_data[idx + len(picked_mac)] = float(cell['signal_level_dBm'])
+    raw_data[idx + len(picked_mac)] = float(cell['signal_level_dBm'][:cell['signal_level_dBm'].index(' ')])
+    raw_data[idx + 2 * len(picked_mac)] = float(cell['signal_level_dBm'][cell['signal_level_dBm'].index('=')+1:])
 
 print(raw_data)
