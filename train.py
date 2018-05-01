@@ -51,15 +51,17 @@ if __name__ == '__main__':
   print(train_data.shape)
 
   model = Sequential()
-  model.add(Dense(32, activation='relu', input_dim=train_data.shape[1]))
+  model.add(Dense(128, activation='relu', input_dim=train_data.shape[1]))
+  model.add(BatchNormalization())
+  model.add(Dense(32, activation='relu'))
   model.add(BatchNormalization())
   model.add(Dense(3, activation='sigmoid'))
-  model.add(BatchNormalization())
+  # model.add(BatchNormalization())
   model.compile(optimizer='rmsprop', loss='mse')
   model.summary()
 
   print('training...')
-  model.fit(train_data, train_labels, epochs=10000, batch_size=64, callbacks=[EarlyStopping(monitor='loss', patience=10)])
+  model.fit(train_data, train_labels, epochs=10000, batch_size=64) # callbacks=[EarlyStopping(monitor='loss', patience=100)]
   model.save_weights('model.h5')
 
   print('evaluating...')
