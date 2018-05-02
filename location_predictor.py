@@ -40,7 +40,7 @@ def predict_location(feat):
   resy=0
   resz=0
 
-  for num in train:
+  for num in train[0]:
     if num!= 0:
       resy=num*y[j]+resy
       res=num*x[j]+res    
