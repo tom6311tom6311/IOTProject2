@@ -1,21 +1,32 @@
 import numpy as np
 import util
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import svm
 from sklearn.metrics import accuracy_score
 import pickle
 
 DATA_PATH = 'data/data_total.csv'
-MODEL_FILE = 'knn_new.model'
+KNN_MODEL_FILE = 'knn_new.model'
+SVC_MODEL_FILE = 'svc_new.model'
 
 if __name__ == '__main__':
   test_data, test_labels, train_data, train_labels, label_to_xyz, selected_features = util.load_data(DATA_PATH)
   print(train_data.shape)
 
+  clf = svm.SVC()
   knn = KNeighborsClassifier(n_neighbors=7)
+  clf.fit(train_data, train_labels)
   knn.fit(train_data, train_labels)
   
-  pickle.dump([knn, label_to_xyz, selected_features], open(MODEL_FILE, 'wb'))
-  [knn, label_to_xyz, selected_features] = pickle.load(open(MODEL_FILE, 'rb'))
+  pickle.dump([clf, label_to_xyz, selected_features], open(SVC_MODEL_FILE, 'wb'))
+  [clf, label_to_xyz, selected_features] = pickle.load(open(SVC_MODEL_FILE, 'rb'))
+  pickle.dump([knn, label_to_xyz, selected_features], open(KNN_MODEL_FILE, 'wb'))
+  [knn, label_to_xyz, selected_features] = pickle.load(open(KNN_MODEL_FILE, 'rb'))
+
+  pred_labels = clf.predict(test_data)
+  print(test_labels)
+  print(pred_labels)
+  print accuracy_score(test_labels, pred_labels)
 
   pred_labels = knn.predict(test_data)
   print(test_labels)
