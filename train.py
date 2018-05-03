@@ -3,11 +3,11 @@ import numpy as np
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 from keras.models import Sequential
-from keras.layers import Dense, Activation, BatchNormalization
+from keras.layers import Dense, Activation, BatchNormalization, Dropout
 from keras.callbacks import EarlyStopping
 
 
-DATA_PATH = 'data/data_20180426.csv'
+DATA_PATH = 'data/data_total.csv'
 POS_RANGE = {'MIN_X': 0.0, 'MIN_Y': 0.0, 'MIN_Z': 0.0, 'MAX_X':9.0, 'MAX_Y':8.0, 'MAX_Z':3.0}
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -35,6 +35,10 @@ def load_data(path, valid_split=0.1):
       raw_data.append(raw_datum)
       labels.append(label)
   raw_data = np.array(raw_data)
+  selected_features = np.sort(np.argsort(np.count_nonzero(raw_data, axis=0))[10:])
+  print(selected_features)
+  raw_data = raw_data[:,selected_features]
+  raw_data /= 100
   labels = np.array(labels)
   labels[:,0] /= (POS_RANGE['MAX_X'] - POS_RANGE['MIN_X'])
   labels[:,1] /= (POS_RANGE['MAX_Y'] - POS_RANGE['MIN_Y'])
@@ -55,13 +59,13 @@ if __name__ == '__main__':
   model.add(BatchNormalization())
   model.add(Dense(32, activation='relu'))
   model.add(BatchNormalization())
-  model.add(Dense(3, activation='sigmoid'))
-  # model.add(BatchNormalization())
+  model.add(Dense(3, activation='relu'))
+  model.add(BatchNormalization())
   model.compile(optimizer='rmsprop', loss='mse')
   model.summary()
 
   print('training...')
-  model.fit(train_data, train_labels, epochs=10000, batch_size=64) # callbacks=[EarlyStopping(monitor='loss', patience=100)]
+  model.fit(train_data, train_labels, epochs=10000, batch_size=64, callbacks=[EarlyStopping(monitor='loss', patience=300)])
   model.save_weights('model.h5')
 
   print('evaluating...')
