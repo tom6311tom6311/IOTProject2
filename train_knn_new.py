@@ -13,7 +13,7 @@ if __name__ == '__main__':
   test_data, test_labels, train_data, train_labels, label_to_xyz, selected_features = util.load_data(DATA_PATH)
   print(train_data.shape)
 
-  clf = svm.SVC()
+  clf = svm.LinearSVC()
   knn = KNeighborsClassifier(n_neighbors=7)
   clf.fit(train_data, train_labels)
   knn.fit(train_data, train_labels)
