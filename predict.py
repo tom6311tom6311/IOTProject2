@@ -4,9 +4,12 @@ from subprocess import call
 import pickle
 import util
 import iwlist
+import sys
 
 
-MODEL_FILE = 'knn_new.model'
+USE_SVC = str(sys.argv[1])
+KNN_MODEL_FILE = 'knn_new.model'
+SVC_MODEL_FILE = 'svc_new.model'
 interface_names = ['wlan0','ra0']
 picked_essid = ['LBS1', 'LBS2', 'LBS3', 'LBS4', 'NTU@1', 'NTU@2', 'NTU@3', 'NTU@4', 'ntu_peap@1', 'ntu_peap@2', 'ntu_peap@3', 'eduroam@1', 'eduroam@2', 'eduroam@3', 'MD402_1', 'MD402-2', 'NTUMOOC', 'eslab-Dlink652', 'DIRECT-32-HP M377 LaserJet']
 picked_mac = ['60:45:CB:12:F5:70', '60:45:CB:12:D9:E8', '60:45:CB:12:E5:98', '60:45:CB:12:DD:78', '00:0B:86:96:63:A2', '00:0B:86:96:86:62', '00:0B:86:96:61:C2', '00:0B:86:96:70:C2', '00:0B:86:96:63:A1', '00:0B:86:96:61:C1', '00:0B:86:96:70:C1', '00:0B:86:96:70:C0', '00:0B:86:96:82:20', '00:0B:86:96:61:C0', '70:70:8B:09:2F:E0', '00:1D:AA:0F:7C:44', 'AC:9E:17:7E:E6:38', 'B8:A3:86:57:17:67', 'EA:9E:B4:2D:81:32']
@@ -37,9 +40,12 @@ raw_data = np.array(raw_data)
 print(raw_data)
 
 print('loading model...')
-[knn, label_to_xyz, selected_features] = pickle.load(open(MODEL_FILE, 'rb'))
+if (USE_SVC == 'True'):
+  [model, label_to_xyz, selected_features] = pickle.load(open(SVC_MODEL_FILE, 'rb'))
+else:
+  [model, label_to_xyz, selected_features] = pickle.load(open(KNN_MODEL_FILE, 'rb'))
 print('predicting...')
-pred_labels = knn.predict(util.transform_feat(raw_data, selected_features))
+pred_labels = model.predict(util.transform_feat(raw_data, selected_features))
 pred_xyzs = np.array([label_to_xyz[i] for i in pred_labels])
 pred_avg_xyz = np.mean(pred_xyzs, axis=0)
 print(pred_avg_xyz)
